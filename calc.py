@@ -153,7 +153,7 @@ while True:
     c = Calc()
     s = input('\033[32mInput: ').lower().strip()
     start = s.split()[0]
-    if start in lst_of_fun:  # mb create with 's.startswith(tuple(lst_of_fun))'?
+    if start in lst_of_fun:
         if start == 'exit':
             s = input('\033[32mSave to json? (y/n): ').lower().strip()
             if s == 'y':
@@ -174,19 +174,19 @@ while True:
             s = s.split()
             if start == 'set':
                 if '-' in s[1]:
-                    x1_b = str(s[1][1:]).replace('.', '', 1).isdigit()
+                    x1_bool = str(s[1][1:]).replace('.', '', 1).isdigit()
                 else:
-                    x1_b = str(s[1]).replace('.', '', 1).isdigit()
+                    x1_bool = str(s[1]).replace('.', '', 1).isdigit()
                 if '-' in s[2]:
-                    x2_b = str(s[2][1:]).replace('.', '', 1).isdigit()
+                    x2_bool = str(s[2][1:]).replace('.', '', 1).isdigit()
                 else:
-                    x2_b = str(s[2]).replace('.', '', 1).isdigit()
-                if (not x1_b and s[1] not in dict_of_var) and (not x2_b and s[2] not in dict_of_var):
+                    x2_bool = str(s[2]).replace('.', '', 1).isdigit()
+                if (not x1_bool and s[1] not in dict_of_var) and (not x2_bool and s[2] not in dict_of_var):
                     print(f'\033[31mThis vars not exist')
-                elif not x1_b and x2_b:
+                elif not x1_bool and x2_bool:
                     dict_of_var[s[1]] = Var(s[1], s[2])
                     print(f'\033[34mSet complete')
-                elif not x1_b and not x2_b:
+                elif not x1_bool and not x2_bool:
                     if s[1] in dict_of_var:
                         dict_of_var[s[2]] = Var(s[2], dict_of_var.get(f'{s[1]}').x)
                         print(f'\033[34mSet complete')
