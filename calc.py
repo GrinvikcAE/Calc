@@ -1,4 +1,5 @@
 import json
+import time
 
 
 class Function:
@@ -9,14 +10,12 @@ class Function:
         self.command = command
         self.len_command = len(self.command)
         self.re_var = re_var
-        print('\033[34mDef complete')
 
 
 class Var:
     def __init__(self, n, x):
         self.name = n
         self.x = float(x)
-        print(f'\033[34mSet complete')
 
 
 class Calc:
@@ -53,23 +52,23 @@ class Calc:
             if f == 'add':
                 if not x1_b and not x2_b:
                     self.add(dict_of_var.get(f'{x1}').x, dict_of_var.get(f'{x2}').x)
+                elif x1_b and x2_b:
+                    self.add(float(x1), float(x2))
                 elif x1_b and not x2_b:
                     self.add(float(x1), dict_of_var.get(f'{x2}').x)
                 elif not x1_b and x2_b:
                     self.add(dict_of_var.get(f'{x1}').x, float(x2))
                     dict_of_var.get(f'{x1}').x = c.result
-                elif x1_b and x2_b:
-                    self.add(float(x1), float(x2))
             elif f == 'sub':
                 if not x1_b and not x2_b:
                     self.sub(dict_of_var.get(f'{x1}').x, dict_of_var.get(f'{x2}').x)
+                elif x1_b and x2_b:
+                    self.sub(float(x1), float(x2))
                 elif x1_b and not x2_b:
                     self.sub(float(x1), dict_of_var.get(f'{x2}').x)
                 elif not x1_b and x2_b:
                     self.sub(dict_of_var.get(f'{x1}').x, float(x2))
                     dict_of_var.get(f'{x1}').x = c.result
-                elif x1_b and x2_b:
-                    self.sub(float(x1), float(x2))
             elif f == 'mul':
                 if not x1_b and not x2_b:
                     self.mul(dict_of_var.get(f'{x1}').x, dict_of_var.get(f'{x2}').x)
@@ -83,13 +82,13 @@ class Calc:
             elif f == 'div':
                 if not x1_b and not x2_b:
                     self.div(dict_of_var.get(f'{x1}').x, dict_of_var.get(f'{x2}').x)
+                elif x1_b and x2_b:
+                    self.div(float(x1), float(x2))
                 elif x1_b and not x2_b:
                     self.div(float(x1), dict_of_var.get(f'{x2}').x)
                 elif not x1_b and x2_b:
                     self.div(dict_of_var.get(f'{x1}').x, float(x2))
                     dict_of_var.get(f'{x1}').x = c.result
-                elif x1_b and x2_b:
-                    self.div(float(x1), float(x2))
         except AttributeError:
             print('\033[31mThis var (or vars) not exist(s)')
         return self.result
@@ -148,7 +147,6 @@ print('\033[32mFor ex.:\nDEF pow2: x: MUL x x; RETURN x;\nor\nDEF pow3: y: pow2 
 
 s = input('\033[32mReload json? (y/n): ').lower().strip()
 if s == 'y':
-    print('\033[34mLoading...')
     load()
 
 while True:
@@ -160,25 +158,38 @@ while True:
             s = input('\033[32mSave to json? (y/n): ').lower().strip()
             if s == 'y':
                 save()
+                time.sleep(0.5)
                 raise SystemExit('Exit')
             else:
                 raise SystemExit('Exit')
         elif start == 'load':
             load(file=s.split()[1])
         elif start == 'save':
-            save(file=s.split()[1])
+            if len(s.split()) == 1:
+                save()
+            else:
+                save(file=s.split()[1])
 
         elif start in ['set', 'print', 'add', 'sub', 'mul', 'div']:
             s = s.split()
             if start == 'set':
-                if (not s[1].replace('.', '', 1).isdigit() and s[1] not in dict_of_var) and \
-                        (not s[2].replace('.', '', 1).isdigit() and s[2] not in dict_of_var):
+                if '-' in s[1]:
+                    x1_b = str(s[1][1:]).replace('.', '', 1).isdigit()
+                else:
+                    x1_b = str(s[1]).replace('.', '', 1).isdigit()
+                if '-' in s[2]:
+                    x2_b = str(s[2][1:]).replace('.', '', 1).isdigit()
+                else:
+                    x2_b = str(s[2]).replace('.', '', 1).isdigit()
+                if (not x1_b and s[1] not in dict_of_var) and (not x2_b and s[2] not in dict_of_var):
                     print(f'\033[31mThis vars not exist')
-                elif not s[1].replace('.', '', 1).isdigit() and s[2].replace('.', '', 1).isdigit():
+                elif not x1_b and x2_b:
                     dict_of_var[s[1]] = Var(s[1], s[2])
-                elif not s[1].replace('.', '', 1).isdigit() and not s[2].replace('.', '', 1).isdigit():
+                    print(f'\033[34mSet complete')
+                elif not x1_b and not x2_b:
                     if s[1] in dict_of_var:
                         dict_of_var[s[2]] = Var(s[2], dict_of_var.get(f'{s[1]}').x)
+                        print(f'\033[34mSet complete')
                     else:
                         print(f'\033[31mWrong input')
                 else:
@@ -206,6 +217,7 @@ while True:
 
                 dict_of_fun[d['name']] = Function(name=d['name'], arg=d['arg'],
                                                   command=d['command'], re_var=d['re_var'])
+                print('\033[34mDef complete')
             elif start == 'call':
                 d = {'name': None,
                      'arg': None,
