@@ -110,13 +110,38 @@ class Calc:
         return dict_of_var.get(f'{re_var}').x
 
 
+def load(file='data'):
+    print('\033[34mLoading...')
+    with open(f'{file}.json', 'r') as data_js:
+        data = json.load(data_js)
+        for key in data['vars']:
+            dict_of_var[key] = Var(key, data['vars'][f'{key}'])
+        for key in data['funs']:
+            dict_of_fun[key] = Function(name=key, arg=data['funs'][key][0], command=data['funs'][key][1],
+                                        re_var=data['funs'][key][2])
+    print('\033[34mComplete')
+
+
+def save(file='data'):
+    print('\033[34mSaving...')
+    data = {
+        'vars': {},
+        'funs': {}
+    }
+    for item in dict_of_var:
+        data['vars'][f'{item}'] = dict_of_var.get(f'{item}').x
+    for item in dict_of_fun:
+        data['funs'][f'{item}'] = [dict_of_fun.get(f'{item}').arg, dict_of_fun.get(f'{item}').command,
+                                   dict_of_fun.get(f'{item}').re_var]
+    with open(f'{file}.json', 'w') as data_js:
+        json.dump(data, data_js, indent=3, sort_keys=True)
+    print('\033[34mComplete')
+
+
 dict_of_var = {}
 dict_of_fun = {}
-lst_of_fun = ['exit', 'set', 'print', 'add', 'sub', 'mul', 'div', 'call', 'def']
-data = {
-    'vars': {},
-    'funs': {}
-}
+lst_of_fun = ['exit', 'set', 'print', 'add', 'sub', 'mul', 'div', 'call', 'def', 'load', 'save']
+
 
 print('\033[32mPattern:\nDEF func_name: arg_1 ... arg_n: command_1 operand_1 operand_2; ...; RETURN var_name_or_value;')
 print('\033[32mFor ex.:\nDEF pow2: x: MUL x x; RETURN x;\nor\nDEF pow3: y: pow2 y; MUL y x; RETURN c;')
@@ -124,13 +149,7 @@ print('\033[32mFor ex.:\nDEF pow2: x: MUL x x; RETURN x;\nor\nDEF pow3: y: pow2 
 s = input('\033[32mReload json? (y/n): ').lower().strip()
 if s == 'y':
     print('\033[34mLoading...')
-    with open('data.json', 'r') as data_js:
-        data = json.load(data_js)
-        for key in data['vars']:
-            dict_of_var[key] = Var(key, data['vars'][f'{key}'])
-        for key in data['funs']:
-            dict_of_fun[key] = Function(name=key, arg=data['funs'][key][0], command=data['funs'][key][1],
-                                        re_var=data['funs'][key][2])
+    load()
 
 while True:
     c = Calc()
@@ -140,17 +159,15 @@ while True:
         if start == 'exit':
             s = input('\033[32mSave to json? (y/n): ').lower().strip()
             if s == 'y':
-                print('\033[34mSaving...')
-                for item in dict_of_var:
-                    data['vars'][f'{item}'] = dict_of_var.get(f'{item}').x
-                for item in dict_of_fun:
-                    data['funs'][f'{item}'] = [dict_of_fun.get(f'{item}').arg, dict_of_fun.get(f'{item}').command,
-                                               dict_of_fun.get(f'{item}').re_var]
-                with open('data.json', 'w') as data_js:
-                    json.dump(data, data_js, indent=3, sort_keys=True)
+                save()
                 raise SystemExit('Exit')
             else:
                 raise SystemExit('Exit')
+        elif start == 'load':
+            load(file=s.split()[1])
+        elif start == 'save':
+            save(file=s.split()[1])
+
         elif start in ['set', 'print', 'add', 'sub', 'mul', 'div']:
             s = s.split()
             if start == 'set':
