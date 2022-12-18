@@ -1,7 +1,5 @@
 import json
 
-# some changes
-
 
 class Function:
     def __init__(self, name='test', arg='test', command='test', re_var='test'):
